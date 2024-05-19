@@ -5,41 +5,44 @@ import Form from './Form/Form';
 import { Contacts } from './Contacts/contacts';
 import { Filter } from './Filter/Filter';
 
+const defaultContacts = [
+  { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
+  { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
+  { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
+  { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
+];
+
 export const App = () => {
-  const [contacts, setContacts] = useState([]);
+  const [contacts, setContacts] = useState(() => {
+    const storedContacts = localStorage.getItem('contacts');
+    return storedContacts ? JSON.parse(storedContacts) : defaultContacts;
+  });
+
   const [filter, setFilter] = useState('');
 
   useEffect(() => {
-    const storedContacts = JSON.parse(localStorage.getItem('contacts')) || [];
-    setContacts(storedContacts);
-  }, []);
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
 
   const addContact = ({ name, number }) => {
     if (contacts.some(contact => contact.name.toLowerCase() === name.toLowerCase())) {
       alert(`${name} is already in contacts`);
     } else {
-      const newContact = { id: nanoid(), name: name, number: number };
-      const updatedContacts = [...contacts, newContact];
-      setContacts(updatedContacts);
-      localStorage.setItem('contacts', JSON.stringify(updatedContacts));
+      const newContact = { id: nanoid(), name, number };
+      setContacts(prevContacts => [...prevContacts, newContact]);
     }
   };
 
   const deleteContact = id => {
-    const filteredContacts = contacts.filter(contact => contact.id !== id);
-    setContacts(filteredContacts);
-    localStorage.setItem('contacts', JSON.stringify(filteredContacts));
+    setContacts(prevContacts => prevContacts.filter(contact => contact.id !== id));
   };
 
   const filterContacts = () => {
-    return contacts.filter(contact =>
-      contact.name.toLowerCase().includes(filter.toLowerCase())
-    );
+    return contacts.filter(contact => contact.name.toLowerCase().includes(filter.toLowerCase()));
   };
 
-  const onChangeFilter = event => {
-    const { value } = event.currentTarget;
-    setFilter(value);
+  const handleFilterChange = event => {
+    setFilter(event.target.value);
   };
 
   return (
@@ -47,7 +50,7 @@ export const App = () => {
       <h1>Phonebook</h1>
       <Form addContact={addContact} />
       <h2>Contacts</h2>
-      <Filter filter={filter} onChangeFilter={onChangeFilter} />
+      <Filter filter={filter} onChangeFilter={handleFilterChange} />
       <Contacts deleteContact={deleteContact} contacts={filterContacts()} />
     </div>
   );
