@@ -65,4 +65,3 @@ Contacts.propTypes = {
     })
   ).isRequired,
 };
-
