@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import css from './App.module.css';
 import Form from './Form/Form';
-import { Contacts } from './Contacts/contacs';
+import { Contacts } from './Contacts/contacts';
 import { Filter } from './Filter/Filter';
 
 export const App = () => {
@@ -14,17 +14,8 @@ export const App = () => {
     setContacts(storedContacts);
   }, []);
 
-  const onChangeInput = event => {
-    const { value } = event.currentTarget;
-    setFilter(value);
-  };
-
   const addContact = ({ name, number }) => {
-    if (
-      contacts.some(
-        contact => contact.name.toLowerCase() === name.toLowerCase()
-      )
-    ) {
+    if (contacts.some(contact => contact.name.toLowerCase() === name.toLowerCase())) {
       alert(`${name} is already in contacts`);
     } else {
       const newContact = { id: nanoid(), name: name, number: number };
@@ -46,12 +37,17 @@ export const App = () => {
     );
   };
 
+  const onChangeFilter = event => {
+    const { value } = event.currentTarget;
+    setFilter(value);
+  };
+
   return (
     <div className={css.main}>
       <h1>Phonebook</h1>
       <Form addContact={addContact} />
       <h2>Contacts</h2>
-      <Filter filter={filter} onChangeInput={onChangeInput} />
+      <Filter filter={filter} onChangeFilter={onChangeFilter} />
       <Contacts deleteContact={deleteContact} contacts={filterContacts()} />
     </div>
   );
